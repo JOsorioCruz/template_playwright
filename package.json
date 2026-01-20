@@ -1,0 +1,24 @@
+{
+  "name": "demoblaze-automation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:signup": "npx playwright test signUp.spec.js",
+    "test:debug": "npx playwright test --debug",
+    "report": "allure generate allure-results --clean && allure open",
+    "report:generate": "allure generate allure-results --clean"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@faker-js/faker": "^10.2.0",
+    "@playwright/test": "^1.57.0",
+    "allure-commandline": "^2.36.0",
+    "allure-playwright": "^3.4.5"
+  }
+}
