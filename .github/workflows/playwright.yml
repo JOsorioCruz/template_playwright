@@ -5,14 +5,11 @@ on:
     branches:
       - main
       - master
-#      - develop
-#      - '**'  # Trigger en cualquier rama para pruebas
   pull_request:
     branches:
       - main
       - master
-#      - develop
-  workflow_dispatch:  # Permite ejecución manual
+  workflow_dispatch:
 
 jobs:
   test:
@@ -36,12 +33,31 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
+        id: playwright-tests
         continue-on-error: true
         run: npm run test:signup
 
+      - name: Check test results
+        run: |
+          if [ ${{ steps.playwright-tests.outcome }} == 'failure' ]; then
+            echo "⚠️ Some tests failed, but continuing to generate reports..."
+            echo "TEST_STATUS=failed" >> $GITHUB_ENV
+          else
+            echo "✅ All tests passed!"
+            echo "TEST_STATUS=passed" >> $GITHUB_ENV
+          fi
+
       - name: Generate Allure Report
         if: always()
-        run: npm run report:generate
+        run: |
+          if [ -d "allure-results" ] && [ "$(ls -A allure-results)" ]; then
+            echo "📊 Generating Allure report..."
+            npm run report:generate
+          else
+            echo "⚠️ No allure-results found, skipping Allure report generation"
+            mkdir -p allure-report
+            echo "<h1>No test results available</h1>" > allure-report/index.html
+          fi
 
       - name: Upload Playwright HTML Report
         if: always()
@@ -50,6 +66,7 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+          if-no-files-found: warn
 
       - name: Upload Allure Report
         if: always()
@@ -58,14 +75,16 @@ jobs:
           name: allure-report
           path: allure-report/
           retention-days: 30
+          if-no-files-found: warn
 
       - name: Upload Allure Results
-        if: always()
+        if: always() && hashFiles('allure-results/**') != ''
         uses: actions/upload-artifact@v4
         with:
           name: allure-results
           path: allure-results/
           retention-days: 30
+          if-no-files-found: ignore
 
       - name: Upload Test Results (Screenshots & Videos)
         if: always()
@@ -81,9 +100,24 @@ jobs:
         run: |
           echo "## Test Execution Summary 🧪" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Tests executed successfully" >> $GITHUB_STEP_SUMMARY
-          echo "📊 Reports generated:" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$TEST_STATUS" == "passed" ]; then
+            echo "✅ **All tests passed successfully!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Some tests failed. Check the reports for details.**" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 **Reports generated:**" >> $GITHUB_STEP_SUMMARY
           echo "- Playwright HTML Report" >> $GITHUB_STEP_SUMMARY
           echo "- Allure Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📦 Artifacts uploaded to GitHub Actions" >> $GITHUB_STEP_SUMMARY
+          echo "📦 **Artifacts uploaded to GitHub Actions**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "👉 Download artifacts from the 'Summary' page above" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail job if tests failed
+        if: steps.playwright-tests.outcome == 'failure'
+        run: |
+          echo "❌ Tests failed. Marking job as failed."
+          exit 1
