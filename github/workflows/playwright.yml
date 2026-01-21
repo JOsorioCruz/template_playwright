@@ -2,10 +2,17 @@ name: Playwright Tests with Allure Reports
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches:
+      - main
+      - master
+#      - develop
+#      - '**'  # Trigger en cualquier rama para pruebas
   pull_request:
-    branches: [ main, master, develop ]
-  workflow_dispatch:
+    branches:
+      - main
+      - master
+#      - develop
+  workflow_dispatch:  # Permite ejecución manual
 
 jobs:
   test:
