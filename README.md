@@ -103,7 +103,7 @@ sudo apt-get install -y nodejs
 ### Paso 1: Clonar o crear el proyecto
 ```bash
 # Opción A: Clonar desde repositorio (si existe)
-git clone <url-del-repositorio>
+git clone <url-del-repositorio](https://github.com/JOsorioCruz/template_playwright>
 cd demoblaze-automation
 
 # Opción B: Crear desde cero
@@ -636,7 +636,7 @@ chmod +x node_modules/.bin/playwright
 
 **Jairo Alonso Osorio Cruz** - QA Engineer  
 📧 Email: osoriocruzjairo@gmail.com  
-🔗 LinkedIn: [tu-perfil](https://www.linkedin.com/in/jairo-osorio-c-8461061b3/)
+🔗 LinkedIn: [LinkedIn](https://www.linkedin.com/in/jairo-osorio-c-8461061b3/)
 
 ---
 
